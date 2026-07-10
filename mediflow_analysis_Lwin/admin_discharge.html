@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediFlow Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-6 font-sans text-slate-800">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-bold text-teal-700">MediFlow Admin</h1>
+                <p class="text-slate-500">Active Patient Management</p>
+            </div>
+            <button onclick="fetchActivePatients()" class="text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded transition">
+                🔄 Refresh List
+            </button>
+        </header>
+
+        <!-- Active Patients Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="min-w-full text-left text-sm">
+                <thead class="bg-slate-100 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold text-slate-600">Patient ID</th>
+                        <th class="px-6 py-4 font-bold text-slate-600">Name</th>
+                        <th class="px-6 py-4 font-bold text-slate-600">Severity</th>
+                        <th class="px-6 py-4 font-bold text-slate-600">Doctor</th>
+                        <th class="px-6 py-4 font-bold text-slate-600 text-right">Action</th>
+                    </tr>
+                </thead>
+                <!-- We leave the body empty. JavaScript will fill this in. -->
+                <tbody id="patientTableBody" class="divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                            ⏳ Loading active patients from database...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Notification Area -->
+        <div id="statusMessage" class="mt-6 text-center text-sm font-bold hidden p-4 rounded-lg"></div>
+    </div>
+
+    <script>
+        // --- YOUR N8N WEBHOOK URLS ---
+        // 1. The URL to get the list of active patients
+        const GET_PATIENTS_URL = "https://n8ngc.codeblazar.org/webhook/get-active-patients"; 
+        
+        // 2. The URL to trigger the discharge process
+        const DISCHARGE_WEBHOOK_URL = "https://n8ngc.codeblazar.org/webhook/discharge-trigger";
+
+        // Function to load the patients when the page opens
+        async function fetchActivePatients() {
+            const tableBody = document.getElementById('patientTableBody');
+            tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">⏳ Fetching live data...</td></tr>`;
+            
+            try {
+                const response = await fetch(GET_PATIENTS_URL);
+                if (!response.ok) throw new Error("Could not connect to n8n");
+                
+                const data = await response.json();
+                
+                // Find the patient list from the n8n data
+                let patients = [];
+                if (Array.isArray(data)) {
+                    patients = data[0].json ? data.map(item => item.json) : data;
+                } else if (data.data) {
+                    patients = data.data;
+                }
+
+                // If no patients are found
+                if (patients.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">✅ No active patients waiting to be discharged.</td></tr>`;
+                    return;
+                }
+
+                // Build the table rows automatically
+                let htmlContent = "";
+                patients.forEach(patient => {
+                    // Set color based on severity
+                    let severityColor = "bg-blue-100 text-blue-700"; // Standard
+                    if (patient.severity === "Urgent") severityColor = "bg-orange-100 text-orange-700";
+                    if (patient.severity === "Critical") severityColor = "bg-red-100 text-red-700";
+
+                    htmlContent += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 font-mono text-slate-500">${patient.patient_id}</td>
+                            <td class="px-6 py-4 font-medium text-slate-900">${patient.patient_name}</td>
+                            <td class="px-6 py-4"><span class="${severityColor} px-2 py-1 rounded text-xs font-bold">${patient.severity}</span></td>
+                            <td class="px-6 py-4 text-slate-600">${patient.doctor_assigned || "Unassigned"}</td>
+                            <td class="px-6 py-4 text-right">
+                                <button onclick="dischargePatient('${patient.patient_id}', '${patient.patient_name}')" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition font-medium">
+                                    Discharge Patient
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = htmlContent;
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-bold">❌ Error loading data. Please check your n8n GET webhook.</td></tr>`;
+            }
+        }
+
+        // Function to send the discharge command to n8n
+        async function dischargePatient(patientId, patientName) {
+            const statusDiv = document.getElementById('statusMessage');
+            
+            // Show loading message
+            statusDiv.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+            statusDiv.classList.add('bg-blue-100', 'text-blue-700');
+            statusDiv.innerText = `⏳ Generating AI discharge summary for ${patientName}...`;
+
+            try {
+                const response = await fetch(DISCHARGE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient_id: patientId })
+                });
+
+                if (!response.ok) throw new Error('Webhook failed');
+
+                // Show success message
+                statusDiv.classList.remove('bg-blue-100', 'text-blue-700');
+                statusDiv.classList.add('bg-green-100', 'text-green-700');
+                statusDiv.innerText = `✅ Success! ${patientName} is discharged.`;
+
+                // Reload the table to remove the discharged patient
+                setTimeout(() => {
+                    fetchActivePatients();
+                    statusDiv.classList.add('hidden');
+                }, 3000);
+
+            } catch (error) {
+                console.error("Error:", error);
+                // Show error message
+                statusDiv.classList.remove('bg-blue-100', 'text-blue-700');
+                statusDiv.classList.add('bg-red-100', 'text-red-700');
+                statusDiv.innerText = `❌ Failed to discharge ${patientName}. Please check your n8n setup.`;
+            }
+        }
+
+        // Run the fetch function as soon as the page loads
+        document.addEventListener('DOMContentLoaded', fetchActivePatients);
+    </script>
+</body>
+</html>
