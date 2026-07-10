@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Symptom Screening Form</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page-container">
+      <div class="pages">
+        <!-- Page 0: Welcome -->
+        <div class="page" data-page="0">
+          <div class="card">
+            <h2 data-i18n="welcome_title">Welcome to MediFlow</h2>
+            <p data-i18n="welcome_text">This quick screening helps us gather your details safely and efficiently.</p>
+            <p class="tap-hint" data-i18n="tap_hint">Tap anywhere on the screen to continue</p>
+          </div>
+        </div>
+
+        <!-- Page 1: NRIC -->
+        <div class="page" data-page="1">
+          <div class="card">
+            <h2 data-i18n="nric_title">Enter Your NRIC</h2>
+            <form id="page-1-form">
+              <div class="form-group">
+                <label for="nric" data-i18n="nric_label">NRIC</label>
+                <input id="nric" name="nric" type="text" maxlength="4" pattern="[A-Za-z0-9]{4}" placeholder="Last 4 chars" required />
+              </div>
+              <p class="tap-hint" data-i18n="tap_hint">Tap anywhere on the screen to continue</p>
+            </form>
+          </div>
+        </div>
+        <div class="page" data-page="2" style="display:none;">
+          <div class="card">
+            <h2 data-i18n="name_title">Enter Your Name</h2>
+            <form id="page-2-form">
+              <div class="form-group">
+                <label data-i18n="name_label">Name</label>
+                <input type="text" name="name" placeholder="Enter Your Name" required />
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Page 2: Overseas Travel -->
+        <div class="page" data-page="3">
+          <div class="card">
+            <h2 data-i18n="overseas_title">Overseas Travel</h2>
+            <form id="page-3-form">
+              <div class="form-group">
+                <label data-i18n="overseas_label">Have you been overseas in the past few days?</label>
+                <div class="option-row">
+                  <label>
+                    <input type="radio" name="overseas" value="yes" required />
+                    <span data-i18n="yes">Yes</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="overseas" value="no" />
+                    <span data-i18n="no">No</span>
+                  </label>
+                </div>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Page 3: Symptoms Checklist -->
+        <div class="page" data-page="4">
+          <div class="card">
+            <h2 data-i18n="symptoms_title">Do you have any of these symptoms?</h2>
+            <form id="page-4-form">
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" name="symptoms" value="cough" />
+                  <span data-i18n="symptom_cough">Cough</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="symptoms" value="fever" />
+                  <span data-i18n="symptom_fever">Fever</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="symptoms" value="sore throat" />
+                  <span data-i18n="symptom_sore_throat">Sore Throat</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" name="symptoms" value="runny nose" />
+                  <span data-i18n="symptom_runny_nose">Runny Nose</span>
+                </label>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Page 4: Fever Severity -->
+        <div class="page" data-page="5">
+          <div class="card">
+            <h2 data-i18n="fever_title">Fever Temperature</h2>
+            <form id="page-5-form">
+              <div class="form-group">
+                <label data-i18n="fever_label">Do you have a fever above 38°C?</label>
+                <div class="option-row">
+                  <label>
+                    <input type="radio" name="high_fever" value="yes" required />
+                    <span data-i18n="yes">Yes</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="high_fever" value="no" />
+                    <span data-i18n="no">No</span>
+                  </label>
+                </div>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Page 5: Any Other Symptoms? -->
+        <div class="page" data-page="6">
+          <div class="card">
+            <h2 data-i18n="other_symptoms_title">Other Symptoms</h2>
+            <form id="page-6-form">
+              <div class="form-group">
+                <label data-i18n="other_symptoms_label">Do you have any other symptoms you want to include?</label>
+                <div class="option-row">
+                  <label>
+                    <input type="radio" name="other_symptoms" value="yes" required />
+                    <span data-i18n="yes">Yes</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="other_symptoms" value="no" />
+                    <span data-i18n="no">No</span>
+                  </label>
+                </div>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Page 6: Additional Symptoms (Conditional) -->
+        <div class="page" data-page="7" style="display: none;">
+          <div class="card">
+            <h2 data-i18n="additional_symptoms_title">Describe Your Symptoms</h2>
+            <form id="page-7-form">
+              <div class="form-group">
+                <label for="additional-symptoms" data-i18n="additional_symptoms_label">Please describe any additional symptoms</label>
+                <textarea id="additional-symptoms" name="additional_symptoms" placeholder="e.g., cough, headache, body ache..."></textarea>
+              </div>
+              <div class="button-group">
+                <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+                <button type="button" class="btn-next" data-i18n="next">Next</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Page 7: Confirmation -->
+        <div class="page" data-page="8" style="display: none;">
+          <div class="card">
+            <h2 data-i18n="confirmation_title">Confirm Your Information</h2>
+            <div id="confirmation-summary" class="confirmation-summary"></div>
+            <div class="button-group">
+              <button type="button" class="btn-prev" data-i18n="previous">Previous</button>
+              <button type="button" id="btn-submit" class="btn-submit" data-i18n="submit">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="language-selector">
+        <button class="lang-btn" data-lang="en" data-i18n="lang_en">English</button>
+        <button class="lang-btn" data-lang="zh" data-i18n="lang_zh">中文</button>
+        <button class="lang-btn" data-lang="ms" data-i18n="lang_ms">Malay</button>
+        <button class="lang-btn" data-lang="ta" data-i18n="lang_ta">தமிழ்</button>
+      </div>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

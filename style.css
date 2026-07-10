@@ -1,0 +1,341 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: #f4f8fb;
+  color: #14213d;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  padding: 0;
+  min-height: 100vh;
+}
+
+.page-container {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  position: relative;
+  padding: 0;
+}
+
+.pages {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page {
+  display: none;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.page.active {
+  display: flex;
+}
+
+.card {
+  border-radius: 0;
+  background: #fedcc0;
+  padding: 36px;
+  box-shadow: none;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  color: #102a43;
+  align-self: flex-start;
+  text-align: left;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.card p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #334155;
+  max-width: 590px;
+  margin: 0 0 16px;
+}
+
+.form-group {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.option-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.option-row label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 500;
+  color: #102a43;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 600;
+  color: #0b2545;
+  cursor: pointer;
+}
+
+label {
+  font-weight: 600;
+  color: #0b2545;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 2px solid #000000;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  background: #ffe7d9;
+  color: #102a43;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+button {
+  border: none;
+  border-radius: 14px;
+  background: #ffe7d9;
+  color: #ffe7d9;
+  padding: 16px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+button:hover,
+button:focus-visible {
+  background: #084bcf;
+  box-shadow: 0 12px 22px rgba(11, 105, 255, 0.24);
+}
+
+button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  background: #7c9cff;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 24px;
+  justify-content: flex-end;
+  position: absolute;
+  left: 36px;
+  right: 36px;
+  bottom: 104px;
+}
+
+.tap-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  text-align: center;
+  margin: 0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+.btn-next,
+.btn-submit {
+  background: #0b69ff;
+}
+
+.btn-prev {
+  background: #6b7280;
+}
+
+.btn-prev:hover,
+.btn-prev:focus-visible {
+  background: #4b5563;
+}
+
+.confirmation-summary {
+  background: #ffe7d9;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 2px solid #000000;
+}
+
+.summary-section {
+  padding: 12px 0;
+  border-bottom: 1px solid #dce5f0;
+  color: #0f3d64;
+}
+
+.summary-section:last-child {
+  border-bottom: none;
+}
+
+.summary-section strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #102a43;
+}
+
+.language-selector {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(20, 33, 61, 0.12);
+  z-index: 1000;
+}
+
+.lang-btn {
+  background: #e0e7ff;
+  color: #102a43;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 160ms ease;
+  border: 2px solid transparent;
+}
+
+.lang-btn:hover {
+  background: #d0d9ff;
+}
+
+.lang-btn[data-lang="en"]:hover,
+.lang-btn[data-lang="zh"]:hover,
+.lang-btn[data-lang="ms"]:hover,
+.lang-btn[data-lang="ta"]:hover {
+  transform: scale(1.05);
+}
+
+.lang-btn[style*="font-weight: bold"] {
+  background: #0b69ff;
+  color: white;
+  border-color: #084bcf;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 880px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding: 0;
+  }
+
+  .pages {
+    min-height: 100vh;
+  }
+
+  .page {
+    min-height: 100vh;
+  }
+
+  .card {
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .button-group {
+    left: 20px;
+    right: 20px;
+    bottom: 104px;
+  }
+
+  .language-selector {
+    left: 10px;
+    bottom: 10px;
+    flex-wrap: wrap;
+    width: calc(100% - 20px);
+  }
+
+  .lang-btn {
+    flex: 1;
+    min-width: 60px;
+  }
+
+  button {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+.logout-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #dc2626; /* red */
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  display: none; /* hidden on first page */
+}
+
+.logout-btn:hover {
+  background: #b91c1c;
+}
