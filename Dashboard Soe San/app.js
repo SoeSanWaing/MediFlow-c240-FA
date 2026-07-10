@@ -258,8 +258,18 @@ function renderDashboard(records) {
     const list = document.createElement('ul');
     list.className = 'patient-list';
 
-      // Sort patients by remaining wait time (ascending - shortest wait first)
+      // Sort patients: In Progress first, then by remaining wait time ascending
       groups[category].sort((a, b) => {
+        const statusOrder = (p) => {
+          const s = String(p.status || '').toLowerCase();
+          if (s === 'emergency') return 0;
+          if (s === 'in progress' || s === 'in-progress') return 1;
+          return 2;
+        };
+        const orderA = statusOrder(a);
+        const orderB = statusOrder(b);
+        if (orderA !== orderB) return orderA - orderB;
+
         const getRemaining = (p) => {
           const wait = p.waitTimeMinutes || 0;
           const assignedTime = p.assignedDateTime || p.arrivalTime;
