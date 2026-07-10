@@ -1,7 +1,5 @@
 const DATA_URL = 'https://n8ngc.codeblazar.org/webhook/get-queue-data';
-// Optional: configure these to the corresponding n8n webhook endpoints for POST actions
-const STATUS_UPDATE_URL = 'https://n8ngc.codeblazar.org/webhook/update-status'; // e.g. 'https://.../webhook/update-status'
-const OVERRIDE_URL = 'https://n8ngc.codeblazar.org/webhook/override-severity'; // e.g. 'https://.../webhook/override-severity'
+const STATUS_UPDATE_URL = 'https://n8ngc.codeblazar.org/webhook/update-status';
 const REFRESH_INTERVAL_MS = 45000;
 
 let patientRecords = [];
@@ -50,14 +48,6 @@ function normalizeSeverity(severity) {
   if (normalized === 'urgent' || normalized === 'medium') return 'medium';
   if (normalized === 'standard' || normalized === 'low') return 'low';
   return 'low';
-}
-
-// Convert display severity (low/medium/high) back to sheet value (Standard/Urgent/Critical)
-function severityToSheetValue(severity) {
-  const normalized = String(severity || '').toLowerCase();
-  if (normalized === 'high' || normalized === 'critical') return 'Critical';
-  if (normalized === 'medium' || normalized === 'urgent') return 'Urgent';
-  return 'Standard';
 }
 
 function formatStatus(status) {
@@ -155,6 +145,9 @@ function formatWaitDisplay(patient) {
     if (status === 'in progress' || status === 'in-progress') {
       return 'In consultation';
     }
+    if (status === 'emergency') {
+      return 'Emergency - awaiting ambulance';
+    }
     const assignedTime = patient.assignedDateTime || patient.arrivalTime;
     if (assignedTime) {
       const assigned = new Date(assignedTime);
@@ -199,36 +192,6 @@ async function postUpdateStatus(patientId, newStatus, sheetRowId) {
     return text ? JSON.parse(text) : { success: true };
   } catch (err) {
     console.error('postUpdateStatus error', err);
-    throw err;
-  }
-}
-
-// Helper: send severity override request to backend webhook (POST)
-async function postOverrideSeverity(patientId, newSeverity, sheetRowId, note) {
-  if (!OVERRIDE_URL) {
-    console.debug('OVERRIDE_URL not configured, skipping backend call');
-    return null;
-  }
-  try {
-    const res = await fetch(OVERRIDE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ patient_id: patientId, severity: newSeverity, admin_notes: note }),
-    });
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Override server response:', errorText);
-      throw new Error(`HTTP ${res.status}`);
-    }
-    const text = await res.text();
-    try {
-      return text ? JSON.parse(text) : { success: true };
-    } catch (e) {
-      // n8n returned non-JSON (e.g. empty or plain text) — that's fine
-      return { success: true };
-    }
-  } catch (err) {
-    console.error('postOverrideSeverity error', err);
     throw err;
   }
 }
@@ -329,14 +292,14 @@ function renderDashboard(records) {
       doneButton.textContent = 'Done';
       doneButton.onclick = () => removePatient(patient.id);
 
-      const severityButton = document.createElement('button');
-      severityButton.className = 'override-button';
-      severityButton.textContent = 'Override Severity';
-      severityButton.onclick = () => manualSeverityOverride(patient.id);
+      const emergencyButton = document.createElement('button');
+      emergencyButton.className = 'override-button';
+      emergencyButton.textContent = 'Emergency';
+      emergencyButton.onclick = () => markEmergency(patient.id);
 
+      actions.appendChild(emergencyButton);
       actions.appendChild(progressButton);
       actions.appendChild(doneButton);
-      actions.appendChild(severityButton);
 
       item.appendChild(main);
       item.appendChild(actions);
@@ -432,25 +395,23 @@ async function removePatient(patientId) {
   }
 }
 
-async function manualSeverityOverride(patientId) {
-  const patient = patientRecords.find((record) => record.id === patientId);
+async function markEmergency(patientId) {
+  const patient = patientRecords.find((p) => p.id === patientId);
   if (!patient) return;
 
-  const note = prompt(`Provide a note for overriding severity for ${patient.name} (required).\nThe AI will assign the new severity based on your note:`);
-  if (!note || note.trim() === '') {
-    showToast('A note is required to override severity.');
-    return;
-  }
+  if (!confirm(`Mark ${patient.name} as EMERGENCY? This will alert for ambulance dispatch.`)) return;
 
-  showToast('Sending override to AI...');
+  // optimistic update
+  patientRecords = patientRecords.map((p) => (p.id === patientId ? { ...p, status: 'Emergency', waitTimeMinutes: 0 } : p));
+  renderDashboard(patientRecords);
 
-  if (OVERRIDE_URL) {
+  if (STATUS_UPDATE_URL) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
-      const payload = { patient_id: patientId, admin_notes: note.trim() };
-      console.log('Sending override:', JSON.stringify(payload));
-      const res = await fetch(OVERRIDE_URL, {
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const payload = { patient_id: patientId, status: 'Emergency', alert_sent: true, estimated_wait_time_mins: 0, estimated_consult_time_mins: 0 };
+      console.log('Sending emergency:', JSON.stringify(payload));
+      const res = await fetch(STATUS_UPDATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -458,27 +419,20 @@ async function manualSeverityOverride(patientId) {
       });
       clearTimeout(timeout);
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Override server response:', errorText);
         showToast(`✗ Backend error: HTTP ${res.status}`);
-        console.log('TOAST SHOWN: override error');
       } else {
-        showToast(`✓ Severity override submitted. AI will reassign severity.`);
-        console.log('TOAST SHOWN: override success');
+        showToast(`✓ Emergency alert sent for ${patient.name}.`);
       }
     } catch (err) {
       if (err.name === 'AbortError') {
-        showToast(`✗ Backend timed out after 15s`);
-        console.log('TOAST SHOWN: override timeout');
+        showToast(`✗ Backend timed out after 10s`);
       } else {
-        showToast(`✗ Failed to override severity: ${err.message}`);
-        console.log('TOAST SHOWN: override fetch error', err.message);
+        showToast(`✗ Failed to send emergency alert: ${err.message}`);
       }
-      console.error('Override failed', err);
+      console.error('Emergency update failed', err);
     }
   } else {
-    showToast(`Override note saved (backend not configured)`);
-    console.log('TOAST SHOWN: override no backend');
+    showToast(`Emergency status set (backend not configured)`);
   }
 }
 

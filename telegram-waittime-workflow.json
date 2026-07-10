@@ -1,0 +1,186 @@
+{
+  "name": "Telegram WaitTime Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 0],
+      "id": "telegram-trigger-001",
+      "name": "Telegram Trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_BOT_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/waittime",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "if-waittime-001",
+      "name": "Is /waittime?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const messageText = $('Telegram Trigger').first().json.message.text;\nconst name = messageText.replace(/^\\/waittime\\s*/i, '').trim();\nif (!name) {\n  return [{ json: { patientName: '', error: true } }];\n}\nreturn [{ json: { patientName: name, error: false } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0],
+      "id": "extract-name-001",
+      "name": "Extract Patient Name"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0],
+      "id": "if-name-empty-001",
+      "name": "Name provided?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "❓ Please provide your name.\n\nExample: /waittime John Doe",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [900, 200],
+      "id": "send-no-name-001",
+      "name": "Send No Name Error",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_BOT_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [900, 0],
+      "id": "get-patients-001",
+      "name": "Get All Patients",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const patients = $input.all().map(item => item.json);\nconst searchName = $('Extract Patient Name').first().json.patientName.toLowerCase();\nconst now = new Date();\n\n// Find patient by name (partial match)\nconst patient = patients.find(p => \n  (p.patient_name || '').toLowerCase().includes(searchName)\n);\n\nif (!patient) {\n  return [{ json: { message: `❌ No patient found with name \"${$('Extract Patient Name').first().json.patientName}\".\\n\\nPlease check your spelling and try again.` } }];\n}\n\n// Calculate live countdown\nconst assignedTime = new Date(patient.assigned_date_time || patient.timestamp);\nconst elapsedMins = Math.floor((now.getTime() - assignedTime.getTime()) / 60000);\nconst waitMins = patient.estimated_wait_time_mins || 0;\nconst remaining = Math.max(0, waitMins - elapsedMins);\n\nconst severityEmoji = patient.severity === 'Critical' ? '🔴' : patient.severity === 'Urgent' ? '🟡' : '🟢';\n\nlet msg = `⏱️ *Wait Time Update*\\n\\n`;\nmsg += `👤 *${patient.patient_name}*\\n`;\nmsg += `${severityEmoji} Severity: ${patient.severity}\\n`;\nmsg += `📋 Status: ${patient.status}\\n\\n`;\n\nif (patient.status === 'Completed') {\n  msg += `✅ Your visit is completed.`;\n} else if (patient.status === 'In-Progress') {\n  msg += `🏥 You are currently in consultation.`;\n} else if (patient.status === 'Emergency') {\n  msg += `🚨 Emergency status - ambulance dispatched.`;\n} else if (remaining === 0) {\n  msg += `🔔 *You are due now!* Please proceed to the counter.`;\n} else {\n  msg += `⏳ Estimated wait: *${remaining} minutes*\\n`;\n  msg += `👨‍⚕️ Doctor: ${patient.doctor_assigned || 'To be assigned'}`;\n}\n\nmsg += `\\n\\n🕐 _Updated: ${now.toLocaleTimeString('en-SG', { hour: '2-digit', minute: '2-digit' })}_`;\n\nreturn [{ json: { message: msg } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 0],
+      "id": "format-message-001",
+      "name": "Find Patient & Calculate Wait"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1380, 0],
+      "id": "send-message-001",
+      "name": "Send Wait Time",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_BOT_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "❓ Unknown command.\n\nSend /waittime YourName to check your wait time.\nExample: /waittime John Doe",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [460, 200],
+      "id": "send-unknown-001",
+      "name": "Send Unknown Command",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "YOUR_TELEGRAM_BOT_NAME"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": { "main": [[{ "node": "Is /waittime?", "type": "main", "index": 0 }]] },
+    "Is /waittime?": { "main": [[{ "node": "Extract Patient Name", "type": "main", "index": 0 }], [{ "node": "Send Unknown Command", "type": "main", "index": 0 }]] },
+    "Extract Patient Name": { "main": [[{ "node": "Name provided?", "type": "main", "index": 0 }]] },
+    "Name provided?": { "main": [[{ "node": "Send No Name Error", "type": "main", "index": 0 }], [{ "node": "Get All Patients", "type": "main", "index": 0 }]] },
+    "Get All Patients": { "main": [[{ "node": "Find Patient & Calculate Wait", "type": "main", "index": 0 }]] },
+    "Find Patient & Calculate Wait": { "main": [[{ "node": "Send Wait Time", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

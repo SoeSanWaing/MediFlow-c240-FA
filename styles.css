@@ -82,8 +82,8 @@ h1 {
 }
 
 .override-button {
-  background: #ffc9d9;
-  color: #c2185b;
+  background: #dc2626;
+  color: white;
 }
 
 .page-main {
@@ -277,4 +277,16 @@ h1 {
 
 .search-bar input:focus {
   border-color: #3b82f6;
+}
+
+
+.header-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
 }
