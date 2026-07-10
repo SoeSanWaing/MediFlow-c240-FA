@@ -12,7 +12,9 @@ const toast = document.getElementById('toast');
 const refreshStatus = document.getElementById('refresh-status');
 const refreshButton = document.getElementById('refresh-button');
 const searchInput = document.getElementById('search-input');
+const dateFilter = document.getElementById('date-filter');
 let searchQuery = '';
+let filterDate = new Date().toISOString().slice(0, 10); // default to today
 
 function formatDate(date) {
   return date.toLocaleDateString(undefined, {
@@ -219,15 +221,13 @@ function groupByCategory(records) {
 
 function renderDashboard(records) {
   gridContainer.innerHTML = '';
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
   const filteredRecords = records.filter((record) => {
     if (removedPatientIds.has(record.id)) return false;
-    // Only show today's patients
+    // Filter by selected date
     const recordDate = record.arrivalTime || record.assignedDateTime || '';
     if (recordDate) {
-      const dateStr = recordDate.slice(0, 10); // "YYYY-MM-DD"
-      if (dateStr !== todayStr) return false;
+      const dateStr = recordDate.slice(0, 10);
+      if (dateStr !== filterDate) return false;
     }
     // Search filter
     if (searchQuery) {
@@ -504,9 +504,15 @@ function startCountdownTick() {
 
 function initializeDashboard() {
   pageTitle.textContent = `Patients for ${formatDate(new Date())}`;
+  dateFilter.value = filterDate; // set default to today
   refreshButton.addEventListener('click', fetchPatientData);
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim();
+    renderDashboard(patientRecords);
+  });
+  dateFilter.addEventListener('change', (e) => {
+    filterDate = e.target.value;
+    pageTitle.textContent = `Patients for ${formatDate(new Date(filterDate + 'T00:00:00'))}`;
     renderDashboard(patientRecords);
   });
   fetchPatientData();
