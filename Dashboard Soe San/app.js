@@ -258,8 +258,8 @@ function renderDashboard(records) {
     const list = document.createElement('ul');
     list.className = 'patient-list';
 
-      // Sort patients by wait time (highest first)
-      groups[category].sort((a, b) => (b.waitTimeMinutes || 0) - (a.waitTimeMinutes || 0));
+      // Sort patients by wait time (ascending)
+      groups[category].sort((a, b) => (a.waitTimeMinutes || 0) - (b.waitTimeMinutes || 0));
 
       groups[category].forEach((patient) => {
       const item = document.createElement('li');
