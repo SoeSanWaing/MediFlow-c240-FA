@@ -41,6 +41,27 @@
       });
     }
 
+    function formatWaitDisplay(patient) {
+      if (patient.waitTimeMinutes !== null && patient.waitTimeMinutes !== undefined && patient.waitTimeMinutes !== '') {
+        const status = String(patient.status || '').toLowerCase();
+        if (status === 'in progress' || status === 'in-progress') {
+          return 'In consultation';
+        }
+        if (status === 'emergency') {
+          return 'Emergency - awaiting ambulance';
+        }
+        const assignedTime = patient.assignedDateTime || patient.arrivalTime;
+        if (assignedTime) {
+          const assigned = new Date(assignedTime);
+          const elapsedMins = Math.floor((Date.now() - assigned.getTime()) / 60000);
+          const remaining = Math.max(0, patient.waitTimeMinutes - elapsedMins);
+          return remaining === 0 ? 'Due now' : `${remaining} min wait`;
+        }
+        return `${patient.waitTimeMinutes} min wait`;
+      }
+      return 'Not available';
+    }
+
     function renderPatientDetails(patient) {
       const details = document.getElementById('details-content');
       document.getElementById('patient-name').textContent = patient.name;
@@ -54,11 +75,7 @@
           <div><strong>Severity:</strong> ${patient.severity}</div>
           <div><strong>Status:</strong> ${patient.status}</div>
           <div><strong>Arrival time:</strong> ${formatDateTime(patient.arrivalTime)}</div>
-          <div><strong>Wait time:</strong> ${patient.waitTimeMinutes !== null && patient.waitTimeMinutes !== undefined && patient.waitTimeMinutes !== '' ? `${patient.waitTimeMinutes} min` : 'Not available'}</div>
-          <div>
-            <button class="secondary-button" onclick="alert('Manual override action is planned for the full implementation.')">Override severity</button>
-            <button class="primary-button" onclick="alert('Mark as seen action is planned for the full implementation.')">Mark as seen</button>
-          </div>
+          <div><strong>Wait time:</strong> ${formatWaitDisplay(patient)}</div>
         </div>
       `;
     }
