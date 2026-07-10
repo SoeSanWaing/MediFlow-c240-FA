@@ -304,3 +304,14 @@ h1 {
   height: 40px;
   width: auto;
 }
+
+
+.noshow-button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #64748b;
+}

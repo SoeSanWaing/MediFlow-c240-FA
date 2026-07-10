@@ -313,6 +313,11 @@ function renderDashboard(records) {
       doneButton.textContent = 'Done';
       doneButton.onclick = () => removePatient(patient.id);
 
+      const noShowButton = document.createElement('button');
+      noShowButton.className = 'noshow-button';
+      noShowButton.textContent = 'No Show';
+      noShowButton.onclick = () => markNoShow(patient.id);
+
       const emergencyButton = document.createElement('button');
       emergencyButton.className = 'override-button';
       emergencyButton.textContent = 'Emergency';
@@ -321,6 +326,7 @@ function renderDashboard(records) {
       actions.appendChild(emergencyButton);
       actions.appendChild(progressButton);
       actions.appendChild(doneButton);
+      actions.appendChild(noShowButton);
 
       item.appendChild(main);
       item.appendChild(actions);
@@ -454,6 +460,45 @@ async function markEmergency(patientId) {
     }
   } else {
     showToast(`Emergency status set (backend not configured)`);
+  }
+}
+
+async function markNoShow(patientId) {
+  const patient = patientRecords.find((p) => p.id === patientId);
+  if (!patient) return;
+
+  if (!confirm(`Mark ${patient.name} as No Show?`)) return;
+
+  // optimistic removal
+  removedPatientIds.add(patientId);
+  renderDashboard(patientRecords);
+
+  if (STATUS_UPDATE_URL) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const payload = { patient_id: patientId, status: 'No-Show' };
+      const res = await fetch(STATUS_UPDATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (!res.ok) {
+        showToast(`✗ Backend error: HTTP ${res.status}`);
+      } else {
+        showToast(`✓ ${patient.name} marked as No Show.`);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        showToast(`✗ Backend timed out after 10s`);
+      } else {
+        showToast(`✗ Failed to update: ${err.message}`);
+      }
+    }
+  } else {
+    showToast(`${patient.name} marked as No Show (backend not configured)`);
   }
 }
 
