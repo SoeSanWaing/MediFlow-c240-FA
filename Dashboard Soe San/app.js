@@ -258,8 +258,19 @@ function renderDashboard(records) {
     const list = document.createElement('ul');
     list.className = 'patient-list';
 
-      // Sort patients by wait time (ascending)
-      groups[category].sort((a, b) => (a.waitTimeMinutes || 0) - (b.waitTimeMinutes || 0));
+      // Sort patients by remaining wait time (ascending - shortest wait first)
+      groups[category].sort((a, b) => {
+        const getRemaining = (p) => {
+          const wait = p.waitTimeMinutes || 0;
+          const assignedTime = p.assignedDateTime || p.arrivalTime;
+          if (assignedTime) {
+            const elapsed = Math.floor((Date.now() - new Date(assignedTime).getTime()) / 60000);
+            return Math.max(0, wait - elapsed);
+          }
+          return wait;
+        };
+        return getRemaining(a) - getRemaining(b);
+      });
 
       groups[category].forEach((patient) => {
       const item = document.createElement('li');
