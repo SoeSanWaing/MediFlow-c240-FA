@@ -1,0 +1,911 @@
+{
+  "name": "MediFlow Dashboard SSW",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1984,
+        144
+      ],
+      "id": "da533cd0-27ba-4f72-a69d-628ac7bf8b44",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2368,
+        144
+      ],
+      "id": "b2bdf1a8-d441-4aea-bc42-866c0d052667",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "patient_id": "={{ $json.patient_id }}",
+            "status": "={{ $json.status }}",
+            "estimated_wait_time_mins": "={{ $json.estimated_wait_time_mins }}",
+            "estimated_consult_time_mins": "={{ $json.estimated_consult_time_mins }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "patient_id"
+          ],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "symptoms",
+              "displayName": "symptoms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "severity",
+              "displayName": "severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_consult_time_mins",
+              "displayName": "estimated_consult_time_mins",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_wait_time_mins",
+              "displayName": "estimated_wait_time_mins",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_reason",
+              "displayName": "ai_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assigned_date_time",
+              "displayName": "assigned_date_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discharge_summary",
+              "displayName": "discharge_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "alert_sent",
+              "displayName": "alert_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "doctor_assigned",
+              "displayName": "doctor_assigned",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "diagnosis",
+              "displayName": "diagnosis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discharged_time",
+              "displayName": "discharged_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "* wait time mins to be updated by wq",
+              "displayName": "* wait time mins to be updated by wq",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2384,
+        368
+      ],
+      "id": "005815b3-b274-4956-8c09-467184946110",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"Patient status updated successfully.\"\n}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3248,
+        368
+      ],
+      "id": "15ea1f9e-bfc2-4acd-a581-f48851ece0db",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "path": "get-queue-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1776,
+        144
+      ],
+      "id": "cc0f2750-c97e-4c24-b8da-acea1fb5a69b",
+      "name": "GetData",
+      "webhookId": "3c96de96-8809-4447-ab34-c2b22850899b"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "update-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1776,
+        368
+      ],
+      "id": "4b32a179-942c-401c-a2f6-b5984510844c",
+      "name": "UpdateStatus",
+      "webhookId": "bd80e584-4af2-45ff-ad8a-edee3d401b87"
+    },
+    {
+      "parameters": {
+        "jsCode": "const TERMINAL_STATUSES = new Set(['completed', 'done', 'discharged', 'cancelled', 'canceled']);\n\nfunction todayInSingapore() {\n  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' }).format(new Date());\n}\n\nfunction getDatePart(ts) {\n  if (!ts) return null;\n  const s = String(ts).trim();\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  if (m) return m[1];\n  const d = new Date(s);\n  if (isNaN(d.getTime())) return null;\n  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' }).format(d);\n}\n\nconst rawDateParam = $('GetData').first().json.query?.date;\nconst normalizedDateParam = getDatePart(rawDateParam);\nconst isHistoricalSearch = Boolean(normalizedDateParam) && normalizedDateParam !== todayInSingapore();\nconst targetDateStr = isHistoricalSearch ? normalizedDateParam : todayInSingapore();\n\nconst rawData = $input.all().map(item => item.json);\nconst groupedData = {};\n\nfor (const patient of rawData) {\n  if (getDatePart(patient.timestamp) !== targetDateStr) continue;\n\n  if (!isHistoricalSearch) {\n    const status = String(patient.status || '').trim().toLowerCase();\n    if (TERMINAL_STATUSES.has(status)) continue;\n  }\n\n  const category = patient.category || 'Uncategorized';\n  if (!groupedData[category]) groupedData[category] = [];\n  groupedData[category].push(patient);\n}\n\nreturn [{ json: groupedData }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        144
+      ],
+      "id": "a0960624-ecd7-449d-bfe6-41a98a57bde1",
+      "name": "Filtering Completed status"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "filtersUI": {
+          "values": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2576,
+        368
+      ],
+      "id": "f63160ca-b57b-4686-9ade-a7ae0129ad2c",
+      "name": "Get row(s) in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---- helpers ----\n// \"today\" is computed explicitly in Asia/Singapore time (matches the fix\n// applied to Filtering Completed status) rather than relying on n8n's\n// $today, which depends on the instance's configured workflow timezone.\nfunction todayInSingapore() {\n  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' }).format(new Date());\n}\n\nfunction getDatePart(ts) {\n  if (!ts) return null;\n  const s = String(ts).trim();\n  const m = s.match(/^(\\d{4}-\\d{2}-\\d{2})/);\n  if (m) return m[1];\n  const d = new Date(s);\n  if (isNaN(d.getTime())) return null;\n  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Singapore' }).format(d);\n}\n\nfunction normStatus(s) {\n  return String(s || '').trim().toLowerCase().replace(/[\\s_-]+/g, '');\n}\n\nconst todayStr = todayInSingapore();\nconst severityScores = { \"Critical\": 1, \"Urgent\": 2, \"Standard\": 3 };\n\nconst allPatients = $input.all().map(item => item.json);\n\n// Only consider TODAY's session queue.\nconst todaysPatients = allPatients.filter(p => getDatePart(p.timestamp) === todayStr);\n\nconst waiting = todaysPatients.filter(p => normStatus(p.status) === 'waiting');\nconst inProgress = todaysPatients.filter(p => normStatus(p.status) === 'inprogress');\n\n// Doctor-based fix: wait time is now calculated PER DOCTOR, not as one\n// shared clinic-wide queue. Doctors work in parallel, so a patient's real\n// wait depends on who's ahead of them for THEIR specific doctor, not on\n// every Critical/Urgent patient across the whole clinic.\nconst UNASSIGNED = 'Unassigned';\nfunction doctorKey(p) {\n  const name = String(p.doctor_assigned || '').trim();\n  return name || UNASSIGNED;\n}\n\n// Group In-Progress patients by doctor, so each doctor's own head-start\n// (50% of their current patient's consult time) only affects that doctor's\n// own queue, not everyone else's.\nconst inProgressByDoctor = {};\nfor (const p of inProgress) {\n  const key = doctorKey(p);\n  inProgressByDoctor[key] = (inProgressByDoctor[key] || 0) + (Number(p.estimated_consult_time_mins || 0) * 0.5);\n}\n\n// Group Waiting patients by doctor.\nconst waitingByDoctor = {};\nfor (const p of waiting) {\n  const key = doctorKey(p);\n  if (!waitingByDoctor[key]) waitingByDoctor[key] = [];\n  waitingByDoctor[key].push(p);\n}\n\nconst updatedWaiting = [];\n\nfor (const [doctor, patients] of Object.entries(waitingByDoctor)) {\n  // Same severity -> timestamp sort as before, but scoped to this doctor's own queue.\n  patients.sort((a, b) => {\n    const sa = severityScores[a.severity] || 3;\n    const sb = severityScores[b.severity] || 3;\n    if (sa !== sb) return sa - sb;\n    return new Date(a.timestamp) - new Date(b.timestamp);\n  });\n\n  let cumulativeWait = inProgressByDoctor[doctor] || 0;\n  for (const patient of patients) {\n    patient.estimated_wait_time_mins = Math.round(cumulativeWait);\n    cumulativeWait += Number(patient.estimated_consult_time_mins || 0);\n    updatedWaiting.push({ json: patient });\n  }\n}\n\n// Only Waiting patients need their wait time written back; In-Progress\n// patients are left untouched since they're already being served.\nreturn updatedWaiting;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2816,
+        368
+      ],
+      "id": "f071c2b5-d9f0-4c00-9b82-1b04f7f59cf2",
+      "name": "Recalculate Wait Time1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "patient_id": "={{ $json.patient_id }}",
+            "estimated_wait_time_mins": "={{ $json.estimated_wait_time_mins }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "patient_id"
+          ],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "patient_id",
+              "displayName": "patient_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "symptoms",
+              "displayName": "symptoms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "severity",
+              "displayName": "severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_consult_time_mins",
+              "displayName": "estimated_consult_time_mins",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_wait_time_mins",
+              "displayName": "estimated_wait_time_mins",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_reason",
+              "displayName": "ai_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assigned_date_time",
+              "displayName": "assigned_date_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discharge_summary",
+              "displayName": "discharge_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "alert_sent",
+              "displayName": "alert_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "doctor_assigned",
+              "displayName": "doctor_assigned",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "diagnosis",
+              "displayName": "diagnosis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discharged_time",
+              "displayName": "discharged_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3040,
+        368
+      ],
+      "id": "0d567077-c6ae-42bd-abb3-eefef03534c1",
+      "name": "Update row in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TQDd46VbKaFUS6g6Gg3607hzYgrbPwm8V6UHC4kwPSE",
+          "mode": "list",
+          "cachedResultName": "Doctor Roster"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 254397630,
+          "mode": "list",
+          "cachedResultName": "DoctorRoster"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2816,
+        592
+      ],
+      "id": "5e25aa18-0a5a-40ba-823c-993a5ea70074",
+      "name": "Get DoctorRoster (Status Sync)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const TERMINAL_STATUSES = new Set(['completed', 'done', 'discharged', 'cancelled', 'canceled', 'noshow', 'no-show']);\nfunction normStatus(s) {\n  return String(s || '').trim().toLowerCase().replace(/[\\s_-]+/g, '');\n}\n\nconst patientId = $('UpdateStatus').first().json.body.patient_id;\nconst allPatients = $('Get row(s) in sheet4').all().map(i => i.json);\nconst patient = allPatients.find(p => String(p.patient_id) === String(patientId));\n\nif (!patient || !patient.doctor_assigned) return [];\n\nconst statusNorm = normStatus(patient.status);\nlet newAvailability = null;\n\nif (statusNorm === 'inprogress') {\n  newAvailability = 'Busy';\n} else if (TERMINAL_STATUSES.has(statusNorm) || statusNorm === 'emergency') {\n  newAvailability = 'Available';\n} else {\n  return [];\n}\n\nconst doctors = $input.all().map(i => i.json);\nconst doctorRow = doctors.find(d => d.doctor_name === patient.doctor_assigned);\nif (!doctorRow) return [];\nif (doctorRow.availability_status === newAvailability) return [];\n\nreturn [{\n  json: {\n    doctor_name: patient.doctor_assigned,\n    availability_status: newAvailability\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        592
+      ],
+      "id": "ff4f52f7-853f-437c-9b75-78ce7bcb5e34",
+      "name": "Sync Doctor Availability"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1TQDd46VbKaFUS6g6Gg3607hzYgrbPwm8V6UHC4kwPSE",
+          "mode": "list",
+          "cachedResultName": "Doctor Roster"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 254397630,
+          "mode": "list",
+          "cachedResultName": "DoctorRoster"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "doctor_name": "={{ $json.doctor_name }}",
+            "availability_status": "={{ $json.availability_status }}"
+          },
+          "matchingColumns": [
+            "doctor_name"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3264,
+        592
+      ],
+      "id": "f6133008-57fc-4305-8a12-cb99c0eecfc6",
+      "name": "Update DoctorRoster Availability",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uk1DVqFPLYPBjmVomJrh9KFK0VgfwWfR_gwIBH2dKNY",
+          "mode": "list",
+          "cachedResultName": "mediflow_queue"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "patient_data"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "patient_id",
+              "lookupValue": "={{ $('UpdateStatus').item.json.body.patient_id }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2000,
+        368
+      ],
+      "id": "93ff2e38-6fb4-4d94-b76c-95a6c5d372cc",
+      "name": "Get Patient (Before Update)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NVnV6B2e9Ee1WaeA",
+          "name": "Google Sheets account 43"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normStatus(s) {\n  return String(s || '').trim().toLowerCase().replace(/[\\s_-]+/g, '');\n}\n\nconst body = $('UpdateStatus').first().json.body;\nconst existing = $input.first().json; // fetched current row, may be empty object if not found\n\nconst requestedStatus = body.status;\nconst requestedNorm = normStatus(requestedStatus);\nconst existingNorm = normStatus(existing.status);\n\nconst isInvalidNoShow = requestedNorm === 'noshow' && existingNorm !== 'waiting';\n\n// If invalid, keep the patient's current status instead of applying the change.\nconst newStatus = isInvalidNoShow ? existing.status : requestedStatus;\nconst isEmergency = normStatus(newStatus) === 'emergency';\n\nreturn [{\n  json: {\n    patient_id: body.patient_id,\n    status: newStatus,\n    estimated_wait_time_mins: isEmergency ? 0 : (existing.estimated_wait_time_mins ?? 0),\n    estimated_consult_time_mins: isEmergency ? 0 : (existing.estimated_consult_time_mins ?? 0)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        368
+      ],
+      "id": "4702d2c8-0809-47a3-a19f-7ae77bcdc576",
+      "name": "Prepare Status Update"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filtering Completed status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetData": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateStatus": {
+      "main": [
+        [
+          {
+            "node": "Get Patient (Before Update)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtering Completed status": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Recalculate Wait Time1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get DoctorRoster (Status Sync)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recalculate Wait Time1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get DoctorRoster (Status Sync)": {
+      "main": [
+        [
+          {
+            "node": "Sync Doctor Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Doctor Availability": {
+      "main": [
+        [
+          {
+            "node": "Update DoctorRoster Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Patient (Before Update)": {
+      "main": [
+        [
+          {
+            "node": "Prepare Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Status Update": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Singapore",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "a3a2c102-8579-440d-a2db-b4c19a530994",
+  "meta": {
+    "instanceId": "d4ebadb9d95df0efff4e8784a1811953a63bd62f8d7a2a45b7c8f23992108d48"
+  },
+  "nodeGroups": [],
+  "id": "zes6SNxv5OUaCG0A",
+  "tags": []
+}
