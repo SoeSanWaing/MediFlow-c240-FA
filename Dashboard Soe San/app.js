@@ -158,6 +158,10 @@ function formatWaitDisplay(patient) {
     if (assignedTime) {
       const assigned = new Date(assignedTime);
       const elapsedMins = Math.floor((Date.now() - assigned.getTime()) / 60000);
+      if (elapsedMins < 0) {
+        // assigned_date_time is in the future — just show the estimate
+        return `${patient.waitTimeMinutes} min wait`;
+      }
       const remaining = patient.waitTimeMinutes - elapsedMins;
       if (remaining <= 0) {
         const overdue = Math.abs(remaining);
