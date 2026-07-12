@@ -154,6 +154,10 @@ function formatWaitDisplay(patient) {
     if (status === 'emergency') {
       return 'Emergency - awaiting ambulance';
     }
+    // If wait time is 0 from the sheet, show Due now immediately
+    if (Number(patient.waitTimeMinutes) === 0) {
+      return 'Due now';
+    }
     const assignedTime = patient.assignedDateTime || patient.arrivalTime;
     if (assignedTime) {
       const assigned = new Date(assignedTime);
