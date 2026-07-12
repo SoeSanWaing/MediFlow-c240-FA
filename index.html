@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediFlow - Doctor Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset & Base */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1a365d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-header { text-align: center; margin-bottom: 36px; }
+        .login-header .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 18px;
+            font-size: 36px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        }
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+        .login-header h1 span { color: #2563eb; }
+        .login-header p { color: #64748b; font-size: 14px; margin-top: 4px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        .form-group .input-wrapper { position: relative; }
+        .form-group .input-wrapper .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px 12px 46px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.2s;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .form-group input:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        .form-group input::placeholder { color: #94a3b8; }
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .form-options .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+        }
+        .form-options .remember input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #2563eb;
+            cursor: pointer;
+        }
+        .form-options .forgot {
+            font-size: 13px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .form-options .forgot:hover { text-decoration: underline; }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        }
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        .login-btn.loading .spinner { display: block; }
+        .login-btn.loading .btn-text { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #991b1b;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        .error-message.show { display: flex; }
+        .login-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .login-footer p { font-size: 12px; color: #94a3b8; }
+        .login-footer .badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 12px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        @media (max-width: 480px) {
+            .login-container { padding: 32px 24px; border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Header -->
+        <div class="login-header">
+            <div class="logo">🏥</div>
+            <h1>Medi<span>Flow</span></h1>
+            <p>Doctor Triage Portal</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage">
+            <span>⚠️</span>
+            <span id="errorText">Invalid credentials. Please try again.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-wrapper">
+                    <span class="icon">👤</span>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter your username"
+                        required
+                        autofocus
+                    />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <span class="icon">🔒</span>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                    />
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember">
+                    <input type="checkbox" checked />
+                    Remember me
+                </label>
+                <a href="#" class="forgot">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="btn-text">Sign In</span>
+                <span class="spinner"></span>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            <div class="badge">🔐 Secure Portal</div>
+            <p>Authorized medical professionals only &bull; Protected by PDPA</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DOCTOR CREDENTIALS (Prototype)
+        // ============================================
+
+        const VALID_CREDENTIALS = {
+            'dr.weiming': { password: 'password123', name: 'Dr Wei Ming Lim', role: 'Physician', id: 'D001' },
+            'dr.junhao': { password: 'password123', name: 'Dr Jun Hao Hassan', role: 'Physician', id: 'D002' },
+            'dr.rajan': { password: 'password123', name: 'Dr Rajan Kumar', role: 'Physician', id: 'D003' },
+            'dr.arjun': { password: 'password123', name: 'Dr Arjun Chen', role: 'Physician', id: 'D004' },
+            'dr.farid': { password: 'password123', name: 'Dr Farid Chen', role: 'Physician', id: 'D005' },
+            'dr.hafiz': { password: 'password123', name: 'Dr Hafiz Goh', role: 'Physician', id: 'D006' },
+            'dr.choon': { password: 'password123', name: 'Dr Choon Hock Lim', role: 'Physician', id: 'D007' },
+            'dr.boonkiat': { password: 'password123', name: 'Dr Boon Kiat Ismail', role: 'Physician', id: 'D008' },
+            'dr.vishal': { password: 'password123', name: 'Dr Vishal Lee', role: 'Physician', id: 'D009' },
+            'dr.pradeep': { password: 'password123', name: 'Dr Pradeep Lim', role: 'Physician', id: 'D010' },
+            'dr.ahmad': { password: 'password123', name: 'Dr Ahmad Raja', role: 'Physician', id: 'D011' },
+            'dr.rizal': { password: 'password123', name: 'Dr Rizal Chua', role: 'Physician', id: 'D012' },
+            'dr.meiling': { password: 'password123', name: 'Dr Mei Ling Ismail', role: 'Physician', id: 'D013' },
+            'dr.huiying': { password: 'password123', name: 'Dr Hui Ying Hassan', role: 'Physician', id: 'D014' },
+            'dr.priya': { password: 'password123', name: 'Dr Priya Ismail', role: 'Physician', id: 'D015' },
+            'dr.divya': { password: 'password123', name: 'Dr Divya Hassan', role: 'Physician', id: 'D016' },
+            'dr.nurul': { password: 'password123', name: 'Dr Nurul Raja', role: 'Physician', id: 'D017' },
+            'dr.siti': { password: 'password123', name: 'Dr Siti Lim', role: 'Physician', id: 'D018' },
+            'dr.xiaoting': { password: 'password123', name: 'Dr Xiao Ting Goh', role: 'Physician', id: 'D019' },
+            'dr.jiaen': { password: 'password123', name: 'Dr Jia En Chen', role: 'Physician', id: 'D020' },
+            'dr.lakshmi': { password: 'password123', name: 'Dr Lakshmi Raja', role: 'Physician', id: 'D021' },
+            'dr.aisyah': { password: 'password123', name: 'Dr Aisyah Ng', role: 'Physician', id: 'D022' },
+            'dr.huimin': { password: 'password123', name: 'Dr Hui Min Lee', role: 'Physician', id: 'D023' },
+            'dr.xiufen': { password: 'password123', name: 'Dr Xiu Fen Chua', role: 'Physician', id: 'D024' },
+            'admin': { password: 'admin123', name: 'System Admin', role: 'Administrator', id: 'ADMIN' }
+        };
+
+        // ============================================
+        // LOGIN HANDLER
+        // ============================================
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            if (!username || !password) {
+                errorText.textContent = 'Please enter both username and password.';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            errorMsg.classList.remove('show');
+
+            // Simulate authentication
+            setTimeout(() => {
+                const user = VALID_CREDENTIALS[username];
+
+                if (user && user.password === password) {
+                    // Generate JWT token (simple)
+                    const token = btoa(JSON.stringify({
+                        doctor_id: user.id,
+                        doctor_name: user.name,
+                        role: user.role,
+                        exp: Date.now() + 3600000 // 1 hour
+                    }));
+
+                    // Store in localStorage
+                    localStorage.setItem('jwt_token', token);
+                    localStorage.setItem('doctor_info', JSON.stringify({
+                        id: user.id,
+                        name: user.name,
+                        role: user.role
+                    }));
+
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorText.textContent = 'Invalid credentials. Please try again.';
+                    errorMsg.classList.add('show');
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
+            }, 800);
+        }
+
+        // Enter key support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Check if already logged in
+        const token = localStorage.getItem('jwt_token');
+        if (token) {
+            try {
+                const decoded = JSON.parse(atob(token));
+                if (decoded.exp > Date.now()) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    localStorage.removeItem('jwt_token');
+                    localStorage.removeItem('doctor_info');
+                }
+            } catch (e) {
+                localStorage.removeItem('jwt_token');
+                localStorage.removeItem('doctor_info');
+            }
+        }
+        
+    </script>
+</body>
+</html>

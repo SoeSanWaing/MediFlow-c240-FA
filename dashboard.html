@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediFlow - Doctor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        /* ============================================
+                   RESET & BASE
+                   ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F3F5F7;
+            color: #1A2233;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+                   TOP BAR
+                   ============================================ */
+        .topbar {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E6EC;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1A2233;
+        }
+        .brand span {
+            color: #2F6FED;
+        }
+
+        .doctor-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .doctor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2F6FED;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .doctor-meta {
+            line-height: 1.3;
+        }
+        .doctor-meta #doctorName {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .doctor-meta #doctorRole {
+            font-size: 12px;
+            color: #6B7686;
+        }
+
+        .logout-btn {
+            margin-left: 16px;
+            border: 1px solid #E2E6EC;
+            background: #fff;
+            color: #6B7686;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: #F3F5F7;
+            color: #1A2233;
+        }
+
+        /* ============================================
+                   LAYOUT
+                   ============================================ */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 24px 28px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #E2E6EC;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6B7686;
+            margin-bottom: 14px;
+        }
+
+        /* ============================================
+                   STATS ROW
+                   ============================================ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border: 1px solid #E2E6EC;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6B7686;
+            margin-top: 2px;
+        }
+
+        #emergencyCount {
+            color: #D64545;
+        }
+        #complexCount {
+            color: #E08A2C;
+        }
+        #routineCount {
+            color: #2F9E5E;
+        }
+
+        /* ============================================
+                   PATIENTS TABLE
+                   ============================================ */
+        #patientsTableWrapper {
+            overflow-x: auto;
+        }
+
+        #patientsTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #patientsTable th {
+            padding: 10px 12px;
+            text-align: left;
+            background: #F8FAFC;
+            border-bottom: 2px solid #E2E6EC;
+            font-weight: 600;
+            color: #4A5568;
+        }
+
+        #patientsTable td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #F0F2F5;
+        }
+
+        #patientsTable tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-row {
+            background: #F0F7FF !important;
+        }
+
+        .assigned-badge {
+            font-size: 10px;
+            color: #2F6FED;
+            background: #E8F0FE;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+
+        /* ============================================
+                   SEVERITY BADGES
+                   ============================================ */
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+        .severity-badge.emergency {
+            background: #FCEBEB;
+            color: #D64545;
+        }
+        .severity-badge.complex {
+            background: #FDF1E3;
+            color: #E08A2C;
+        }
+        .severity-badge.routine {
+            background: #E9F7EF;
+            color: #2F9E5E;
+        }
+
+        /* ============================================
+                   SEARCH
+                   ============================================ */
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid #E2E6EC;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        #searchInput:focus {
+            outline: none;
+            border-color: #2F6FED;
+        }
+
+        #searchBtn {
+            background: #2F6FED;
+            color: #fff;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #searchBtn:hover {
+            background: #255ACC;
+        }
+        #searchBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ============================================
+                   PATIENT CARD
+                   ============================================ */
+        #patientCard {
+            display: none;
+            border: 1px solid #E2E6EC;
+            border-radius: 12px;
+            padding: 18px;
+        }
+        #patientCard.active {
+            display: block;
+        }
+
+        .patient-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #F0F2F5;
+            font-size: 14px;
+        }
+        .patient-row:last-child {
+            border-bottom: none;
+        }
+        .patient-row .label {
+            color: #6B7686;
+        }
+        .patient-row .value {
+            font-weight: 600;
+        }
+
+        .empty-state {
+            color: #A0A8B4;
+            font-size: 13px;
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        /* ============================================
+                   CHAT HINT
+                   ============================================ */
+        .chat-hint {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6B7686;
+            font-size: 13px;
+        }
+
+        .chat-hint .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2F9E5E;
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+                   STATUS COLORS
+                   ============================================ */
+        .status-waiting {
+            color: #E08A2C;
+        }
+        .status-assigned {
+            color: #2F6FED;
+        }
+        .status-progress {
+            color: #2F9E5E;
+        }
+        .status-completed {
+            color: #6B7686;
+        }
+
+        /* ============================================
+                   RESPONSIVE
+                   ============================================ */
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .topbar {
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .layout {
+                padding: 16px;
+            }
+            #patientsTable {
+                font-size: 12px;
+            }
+            #patientsTable th,
+            #patientsTable td {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .doctor-meta #doctorName {
+                font-size: 12px;
+            }
+            .doctor-meta #doctorRole {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================ -->
+    <!-- TOP BAR                                       -->
+    <!-- ============================================ -->
+
+    <div class="topbar">
+        <div class="brand">Medi<span>Flow</span></div>
+        <div class="doctor-block">
+            <div class="doctor-avatar" id="doctorAvatar">Dr</div>
+            <div class="doctor-meta">
+                <div id="doctorName">Doctor</div>
+                <div id="doctorRole">Physician</div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Log out</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MAIN LAYOUT                                   -->
+    <!-- ============================================ -->
+
+    <div class="layout">
+
+        <!-- STATS ROW -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="totalWaiting">0</div>
+                <div class="stat-label">Waiting</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="emergencyCount">0</div>
+                <div class="stat-label">Emergency</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="complexCount">0</div>
+                <div class="stat-label">Complex</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="routineCount">0</div>
+                <div class="stat-label">Routine</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgWait">0m</div>
+                <div class="stat-label">Avg Wait</div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- ALL PATIENTS TABLE                           -->
+        <!-- ============================================ -->
+
+        <div class="panel">
+            <div class="panel-title">
+                👨‍⚕️ All Patients
+                <span style="float:right;font-size:12px;color:#6B7686;font-weight:400;">
+                    Total: <span id="totalPatients">0</span>
+                </span>
+            </div>
+            <div id="patientsTableWrapper">
+                <table id="patientsTable">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Symptoms</th>
+                            <th>Assigned To</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Wait</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        <tr>
+                            <td colspan="6" style="padding:30px;text-align:center;color:#A0A8B4;">
+                                Loading patients...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- PATIENT LOOKUP                               -->
+        <!-- ============================================ -->
+
+        <div class="panel">
+            <div class="panel-title">🔍 Patient Lookup</div>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Enter patient NRIC or name..." />
+                <button id="searchBtn" onclick="searchPatient()">Search</button>
+            </div>
+
+            <div id="patientCard">
+                <div class="patient-row">
+                    <span class="label">Patient ID</span>
+                    <span class="value" id="pid">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Name</span>
+                    <span class="value" id="pname">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Symptoms</span>
+                    <span class="value" id="psymptoms">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Severity</span>
+                    <span class="value" id="pseverity">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Est. Wait</span>
+                    <span class="value" id="pwait">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Status</span>
+                    <span class="value" id="pstatus">-</span>
+                </div>
+                <div class="patient-row">
+                    <span class="label">Assigned To</span>
+                    <span class="value" id="passigned">-</span>
+                </div>
+            </div>
+            <div class="empty-state" id="emptyState">Search for a patient to view their details here.</div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- CLINICAL ASSISTANT                            -->
+        <!-- ============================================ -->
+
+        <div class="panel">
+            <div class="panel-title">💬 Clinical Assistant</div>
+            <div class="chat-hint">
+                <div class="dot"></div>
+                <span>Your chatbot is available in the bubble at the bottom-right of the screen.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BOTPRESS WEBCHAT                             -->
+    <!-- ============================================ -->
+
+    <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+    <script src="https://files.bpcontent.cloud/2026/06/30/10/20260630103957-0X20AM0Z.js"></script>
+
+    <!-- ============================================ -->
+    <!-- MAIN JAVASCRIPT                              -->
+    <!-- ============================================ -->
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+
+        const CONFIG = {
+            // ⬇️ YOUR PRODUCTION WEBHOOK URL
+            N8N_WEBHOOK_URL: 'https://n8ngc.codeblazar.org/webhook/ddb2f632-a828-408c-b976-b406c241325f',
+            N8N_API_KEY: 'MyPASSWORD123'
+        };
+
+        // ============================================
+        // LOAD DOCTOR INFO
+        // ============================================
+
+        const doctorInfo = JSON.parse(localStorage.getItem('doctor_info') || '{}');
+        const jwtToken = localStorage.getItem('jwt_token');
+
+        if (!jwtToken || !doctorInfo.name) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('doctorName').textContent = doctorInfo.name || 'Doctor';
+        document.getElementById('doctorRole').textContent = doctorInfo.role || 'Physician';
+        document.getElementById('doctorAvatar').textContent =
+            (doctorInfo.name || 'Dr').split(' ').map(n => n[0]).join('');
+
+        // ============================================
+        // BOTPRESS WEBCHAT - INJECT DOCTOR DATA
+        // ============================================
+
+        window.botpress.on('webchat:initialized', () => {
+            console.log('✅ Botpress webchat ready. Injecting doctor data...');
+
+            window.botpress.updateUser({
+                data: {
+                    doctor_id: doctorInfo.id || 'D002',
+                    doctor_name: doctorInfo.name || 'Dr Jun Hao Hassan',
+                    doctor_role: doctorInfo.role || 'Physician',
+                    authToken: jwtToken,
+                    polyclinic: 'Polyclinic'
+                }
+            }).then(() => {
+                console.log('✅ Doctor data injected successfully!');
+            }).catch((err) => {
+                console.error('❌ Failed to inject doctor data:', err);
+            });
+        });
+
+        // ============================================
+        // FETCH ALL PATIENTS
+        // ============================================
+
+        async function fetchAllPatients() {
+            try {
+                const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': CONFIG.N8N_API_KEY
+                    },
+                    body: JSON.stringify({
+                        action: 'get_all_patients',
+                        doctor_id: doctorInfo.id,
+                        jwt_token: jwtToken
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.patients) {
+                    renderPatientsTable(result.patients);
+                    document.getElementById('totalPatients').textContent = result.patients.length;
+                    updateStats(result.patients);
+                }
+            } catch (error) {
+                console.error('Error fetching patients:', error);
+            }
+        }
+
+        // ============================================
+        // RENDER PATIENTS TABLE
+        // ============================================
+
+        function renderPatientsTable(patients) {
+            const tbody = document.getElementById('patientsTableBody');
+
+            if (!patients || patients.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="padding:30px;text-align:center;color:#A0A8B4;">
+                            No patients in queue.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            patients.forEach(patient => {
+                const assignedTo = patient.doctor_assigned || 'Unassigned';
+                const isAssignedToMe = patient.doctor_id === doctorInfo.id;
+
+                const severity = patient.severity || 'Routine';
+                const severityClass = severity.toLowerCase();
+
+                const status = patient.status || 'Waiting';
+                let statusClass = 'status-waiting';
+                let statusDisplay = '⏳ Waiting';
+                if (status === 'Assigned') { statusClass = 'status-assigned';
+                    statusDisplay = '✅ Assigned'; } else if (status === 'In-Progress') { statusClass =
+                        'status-progress';
+                    statusDisplay = '🔄 In Progress'; } else if (status === 'Completed') { statusClass =
+                        'status-completed';
+                    statusDisplay = '✅ Completed'; }
+
+                const rowClass = isAssignedToMe ? 'highlight-row' : '';
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td>
+                            <strong>${patient.patient_name || 'Unknown'}</strong>
+                            <span style="display:block;font-weight:400;color:#6B7686;font-size:11px;">
+                                ID: ${patient.patient_id || 'N/A'}
+                            </span>
+                        </td>
+                        <td style="color:#4A5568;">${patient.symptoms || 'No symptoms'}</td>
+                        <td>
+                            ${assignedTo}
+                            ${isAssignedToMe ? ' <span class="assigned-badge">You</span>' : ''}
+                        </td>
+                        <td><span class="severity-badge ${severityClass}">${severity}</span></td>
+                        <td class="${statusClass}">${statusDisplay}</td>
+                        <td style="color:#6B7686;">${patient.estimated_wait_time_mins || 'N/A'} min</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ============================================
+        // UPDATE STATS
+        // ============================================
+
+        function updateStats(patients) {
+            const total = patients.length;
+            const emergency = patients.filter(p => (p.severity || '').toLowerCase() === 'emergency').length;
+            const complex = patients.filter(p => (p.severity || '').toLowerCase() === 'complex').length;
+            const routine = patients.filter(p => (p.severity || '').toLowerCase() === 'routine').length;
+
+            const waiting = patients.filter(p => p.status === 'Waiting' || p.status === 'Assigned').length;
+
+            const waitTimes = patients
+                .map(p => parseInt(p.estimated_wait_time_mins))
+                .filter(t => !isNaN(t) && t > 0);
+            const avgWait = waitTimes.length > 0 ?
+                Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length) :
+                0;
+
+            document.getElementById('totalWaiting').textContent = waiting;
+            document.getElementById('emergencyCount').textContent = emergency;
+            document.getElementById('complexCount').textContent = complex;
+            document.getElementById('routineCount').textContent = routine;
+            document.getElementById('avgWait').textContent = avgWait + 'm';
+        }
+
+        // ============================================
+        // PATIENT SEARCH
+        // ============================================
+
+        async function searchPatient() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('Please enter a patient NRIC or name.');
+                return;
+            }
+
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+
+            try {
+                const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': CONFIG.N8N_API_KEY
+                    },
+                    body: JSON.stringify({
+                        action: 'lookup_patient',
+                        search_term: query,
+                        doctor_id: doctorInfo.id,
+                        doctor_name: doctorInfo.name,
+                        jwt_token: jwtToken
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.patient) {
+                    displayPatientInfo(result.patient);
+                    document.getElementById('emptyState').style.display = 'none';
+                } else {
+                    alert('Patient not found or error occurred.');
+                    console.error('Error:', result.error);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Error searching for patient. Please try again.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Search';
+        }
+
+        // ============================================
+        // DISPLAY PATIENT INFO
+        // ============================================
+
+        function displayPatientInfo(patient) {
+            document.getElementById('pid').textContent = patient.patient_id || 'N/A';
+            document.getElementById('pname').textContent = patient.patient_name || 'N/A';
+            document.getElementById('psymptoms').textContent = patient.symptoms || 'N/A';
+
+            const severity = patient.severity || 'Routine';
+            const badge = document.getElementById('pseverity');
+            badge.innerHTML = `<span class="severity-badge ${severity.toLowerCase()}">${severity}</span>`;
+
+            document.getElementById('pwait').textContent =
+                patient.estimated_wait_time_mins ? `${patient.estimated_wait_time_mins} min` : 'N/A';
+            document.getElementById('pstatus').textContent = patient.status || 'N/A';
+            document.getElementById('passigned').textContent = patient.doctor_assigned || 'Unassigned';
+
+            document.getElementById('patientCard').classList.add('active');
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('doctor_info');
+            window.location.href = 'index.html';
+        }
+
+        // ============================================
+        // INIT - LOAD PATIENTS ON PAGE LOAD
+        // ============================================
+
+        // Load patients when page loads
+        fetchAllPatients();
+
+        // Refresh every 30 seconds
+        setInterval(fetchAllPatients, 30000);
+
+        // Enter key for search
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                searchPatient();
+            }
+        });
+    </script>
+</body>
+</html>
