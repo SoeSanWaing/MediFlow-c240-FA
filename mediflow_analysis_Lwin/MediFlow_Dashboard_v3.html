@@ -136,7 +136,33 @@
 
     /* Section heading */
     .section-heading { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; margin-top: 0.25rem; }
+    .section-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .date-toolbar { display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px; }
+    .date-toolbar .date-input { border: none; background: transparent; padding: 0.3rem 0.6rem; }
+    .date-toolbar .date-input:focus { border-color: transparent; }
+    .date-toolbar .btn { padding: 0.3rem 0.7rem; font-size: 12px; }
+    .date-toolbar .btn-today { background: var(--gray-light); color: var(--charcoal); }
+    .date-toolbar .btn-today:hover { background: var(--green-pale); }
+    .date-toolbar .btn-today.active { background: var(--green-mid); color: #fff; }
+    .section-date-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .section-date-label strong { color: var(--charcoal); }
     #dashboardContent { display: none; }
+    #realtimeContent { display: none; }
+    .realtime-pulse { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green-mid); margin-right: 6px; animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } }
+    .queue-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .queue-table th { background: var(--green-pale); color: var(--green-dark); padding: 8px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--green-mint); }
+    .queue-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+    .queue-table tr:hover td { background: var(--gray-light); }
+    .queue-table tr:last-child td { border-bottom: none; }
+    .severity-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .severity-pill.Standard { background: var(--green-pale); color: var(--green-dark); }
+    .severity-pill.Urgent { background: var(--amber-pale); color: var(--amber); }
+    .severity-pill.Critical { background: var(--red-pale); color: var(--red); }
+    .status-pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .status-pill.Waiting { background: var(--blue-pale); color: var(--blue); }
+    .status-pill.In-Progress { background: var(--amber-pale); color: var(--amber); }
+    .empty-queue { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 13px; }
 
     @media (max-width: 900px) {
       .sidebar { width: 60px; }
@@ -156,18 +182,28 @@
     </div>
     <nav class="sidebar-nav"> 
       <div class="nav-label">Main</div>
-      <button class="nav-item active" onclick="showSection('dashboard', this)">
+      <button class="nav-item active" onclick="showSection('realtime', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Real-Time</span>
+      </button>
+      <button class="nav-item" onclick="showSection('dashboard', this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         <span>Dashboard</span>
       </button>
     </nav>
-    <div class="sidebar-footer">MediFlow v1.0</div>
+    <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
+      <span>MediFlow v1.0</span>
+      <a href="https://choppedtomato277.github.io/mediflow_login/" class="btn btn-ghost" style="width: 100%; text-align: center; color: var(--green-mint); border-color: rgba(255,255,255,0.2); font-size: 12px; text-decoration: none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
   </aside>
 
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <h1 id="pageTitle">Clinic Analytics</h1>
+        <h1 id="pageTitle">Real-Time Operations</h1>
         <p id="topbarDate">Loading...</p>
       </div>
       <div class="topbar-right">
@@ -184,13 +220,21 @@
       <div id="alertContainer"></div>
 
       <!-- Dashboard section -->
-      <div id="section-dashboard">
+      <div id="section-dashboard" style="display:none;">
         <div id="loadingMessage">
           <div class="spinner"></div>
           <div class="loading-text">Fetching clinic data...</div>
         </div>
         <div id="dashboardContent">
-          <div class="section-heading">Overview</div>
+          <div class="section-heading-row">
+            <div class="section-heading" style="margin-bottom:0;">Overview · <span class="section-date-label">Showing <strong id="dashboardDateLabel">today</strong></span></div>
+            <div class="date-toolbar">
+              <button class="btn btn-today" id="btnPrevDay" title="Previous day">‹</button>
+              <input type="date" id="dashboardDate" class="date-input">
+              <button class="btn btn-today" id="btnNextDay" title="Next day">›</button>
+              <button class="btn btn-today active" id="btnToday" title="Jump to today">Today</button>
+            </div>
+          </div>
           <div class="metric-grid">
             <div class="metric-card">
               <div class="metric-label">Total patients</div>
@@ -232,6 +276,57 @@
             </div>
             <canvas id="severityChart" style="max-height:280px;"></canvas>
             <div id="severitySummary" style="display:flex; justify-content:center; gap:20px; margin-top:1.5rem; font-size:13px; color:var(--text-primary);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time section -->
+      <div id="section-realtime">
+        <div id="realtimeLoading">
+          <div class="loading-message-wrap" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem; gap:16px;">
+            <div class="spinner"></div>
+            <div class="loading-text">Fetching live queue...</div>
+          </div>
+        </div>
+        <div id="realtimeContent">
+          <div class="section-heading"><span class="realtime-pulse"></span>Live operational view</div>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-label">Active queue</div>
+              <div class="metric-value" id="rtActiveQueue">&#8212;</div>
+              <div class="metric-sub">Waiting + In-Progress</div>
+              <div class="metric-icon">
+                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </div>
+            </div>
+            <div class="metric-card accent-amber">
+              <div class="metric-label">Avg. consult time</div>
+              <div class="metric-value" id="rtAvgWait">&#8212;</div>
+              <div class="metric-sub">Estimated minutes per patient</div>
+              <div class="metric-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+            <div class="metric-card" style="border-color:var(--red);">
+              <div class="metric-label">Critical pressure</div>
+              <div class="metric-value" id="rtCriticalCount" style="color:var(--red);">&#8212;</div>
+              <div class="metric-sub">Critical patients waiting</div>
+              <div class="metric-icon" style="background:var(--red-pale);">
+                <svg viewBox="0 0 24 24" style="stroke:var(--red);"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-heading" style="margin-top:1.25rem;">Live status distribution</div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">Queue status now</div>
+                <div class="chart-sub">Waiting vs. In-Progress patients in real time</div>
+              </div>
+            </div>
+            <canvas id="rtStatusChart" style="max-height:240px;"></canvas>
+            <div id="rtStatusSummary" style="display:flex; justify-content:center; gap:20px; margin-top:1.5rem; font-size:13px; color:var(--text-primary);"></div>
           </div>
         </div>
       </div>
@@ -308,8 +403,8 @@
   const REPORT_URL    = "https://n8ngc.codeblazar.org/webhook/report";
   const ALERTS_URL    = "https://n8ngc.codeblazar.org/webhook/queue-alerts";
 
-  const sections = ["dashboard","discharge","reports","queue","alerts"];
-  const sectionTitles = { dashboard:"Clinic Analytics", discharge:"Discharge Management", reports:"Historical Reports", queue:"Live Queue", alerts:"AI Anomaly Alerts" };
+  const sections = ["dashboard","realtime","discharge","reports","queue","alerts"];
+  const sectionTitles = { dashboard:"Clinic Analytics", realtime:"Real-Time Operations", discharge:"Discharge Management", reports:"Historical Reports", queue:"Live Queue", alerts:"AI Anomaly Alerts" };
 
   function showSection(name, btn) {
     sections.forEach(s => {
@@ -404,7 +499,10 @@
     try {
       const response = await fetch(ALERTS_URL);
       if (!response.ok) return;
-      const data = await response.json();
+      const text = await response.text();
+      if (!text) return; // Empty body — treat as "no alerts" instead of crashing on JSON.parse.
+      let data;
+      try { data = JSON.parse(text); } catch (e) { return; }
       
       const container = document.getElementById("alertContainer");
       container.innerHTML = ""; // Clear existing alerts
@@ -414,15 +512,11 @@
       alerts.forEach(item => {
         const alertText = item.Alert_Message || item.alert_message || item.json?.Alert_Message || "";
         if (alertText && alertText.trim() !== "") {
-          // Format the text: Bold, Headers, and Lists
+          // Format the text: Bold, Headers, and Lists safely
           let formattedText = alertText
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/^(Executive Summary|Key Operational Insights|Likely Root Causes|Recommended Actions|Overall Clinic Health)(.*)$/gm, "<h4>$1</h4>$2")
-            .replace(/^- (.*)$/gm, "<li>$1</li>");
-          
-          if (formattedText.includes("<li>")) {
-            formattedText = formattedText.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
-          }
+            .replace(/^[•-]\s*(.*)$/gm, "<ul style='margin: 4px 0 4px 20px; padding: 0;'><li style='margin-bottom:4px;'>$1</li></ul>");
 
           const banner = document.createElement("div");
           banner.className = "alert-banner visible";
@@ -442,20 +536,7 @@
     } catch(e) { console.error("Alerts error:", e); }
   }
 
-  async function fetchPatientData() {
-    try {
-      const response = await fetch(DASHBOARD_URL);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      document.getElementById("loadingMessage").style.display = "none";
-      document.getElementById("dashboardContent").style.display = "block";
-      calculateMetrics(data);
-    } catch(error) {
-      document.getElementById("loadingMessage").innerHTML = `<div style="color:var(--red);font-size:13px;text-align:center;padding:2rem;"><strong>Failed to load dashboard</strong><br>${error.message}</div>`;
-    }
-  }
-
-  function calculateMetrics(data) {
+  function normalizePatients(data) {
     let patients = [];
     if (Array.isArray(data)) {
       if (data.length > 0 && data[0].json) patients = data[0].json.patients ? data[0].json.patients : data.map(item => item.json);
@@ -464,6 +545,192 @@
     else if (data?.patients) patients = data.patients;
     else if (data?.data) patients = data.data;
     else if (data?.json) patients = [data.json];
+    return patients;
+  }
+
+  // Returns true if the given date string falls on the current local calendar day.
+  function isToday(dateString) {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return false;
+    const today = new Date();
+    return date.getFullYear() === today.getFullYear() &&
+           date.getMonth() === today.getMonth() &&
+           date.getDate() === today.getDate();
+  }
+
+  // True if the given date string's local calendar day matches the target Date's local calendar day.
+  function isSameLocalDay(dateString, target) {
+    if (!dateString) return false;
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return false;
+    return d.getFullYear() === target.getFullYear() &&
+           d.getMonth() === target.getMonth() &&
+           d.getDate() === target.getDate();
+  }
+
+  // Keeps only patients whose assigned/timestamp date falls on the given local calendar day.
+  function filterPatientsByDate(patients, target) {
+    return patients.filter(p => {
+      const dt = p.assigned_date_time || p.assignedDateTime || p.timestamp || p.created_at || p.createdAt;
+      return isSameLocalDay(dt, target);
+    });
+  }
+
+  // Keeps only patients whose assigned/timestamp date is today (local time).
+  function filterTodaysPatients(patients) {
+    return filterPatientsByDate(patients, new Date());
+  }
+
+  // Cached raw patient payload from the dashboard webhook (shared by Dashboard + Real-Time views).
+  let cachedDashboardData = null;
+  // Cached fetch promise so concurrent callers share one network request.
+  let dashboardFetchPromise = null;
+
+  async function getDashboardData() {
+    if (cachedDashboardData) return cachedDashboardData;
+    if (dashboardFetchPromise) return dashboardFetchPromise;
+    dashboardFetchPromise = (async () => {
+      const response = await fetch(DASHBOARD_URL);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      cachedDashboardData = data;
+      return data;
+    })();
+    try { return await dashboardFetchPromise; }
+    finally { dashboardFetchPromise = null; }
+  }
+
+  // YYYY-MM-DD for a Date in local time (matches the <input type="date"> wire format).
+  function toDateInputValue(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function shiftDate(dateStr, deltaDays) {
+    const d = new Date(dateStr + "T00:00:00");
+    if (isNaN(d.getTime())) return toDateInputValue(new Date());
+    d.setDate(d.getDate() + deltaDays);
+    return toDateInputValue(d);
+  }
+
+  // Re-renders the Dashboard view for the date currently set in #dashboardDate.
+  async function renderDashboardForSelectedDate() {
+    const dateInput = document.getElementById("dashboardDate");
+    const todayStr = toDateInputValue(new Date());
+    const value = dateInput.value || todayStr;
+    if (dateInput.value !== value) dateInput.value = value;
+
+    const target = new Date(value + "T00:00:00");
+    const isTodayView = value === todayStr;
+
+    // Date label
+    const labelEl = document.getElementById("dashboardDateLabel");
+    if (labelEl) {
+      labelEl.textContent = isTodayView
+        ? "today"
+        : target.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+    }
+
+    // Today button highlight
+    const todayBtn = document.getElementById("btnToday");
+    if (todayBtn) todayBtn.classList.toggle("active", isTodayView);
+
+    // Show loading state on the dashboard while we compute
+    const loading = document.getElementById("loadingMessage");
+    const content = document.getElementById("dashboardContent");
+    if (loading) loading.style.display = "flex";
+    if (content) content.style.display = "none";
+
+    try {
+      const data = await getDashboardData();
+      const allPatients = normalizePatients(data);
+      const scoped = filterPatientsByDate(allPatients, target);
+      if (loading) loading.style.display = "none";
+      if (content) content.style.display = "block";
+      calculateMetrics(scoped);
+    } catch (error) {
+      if (loading) {
+        loading.innerHTML = `<div style="color:var(--red);font-size:13px;text-align:center;padding:2rem;"><strong>Failed to load dashboard</strong><br>${error.message}</div>`;
+      }
+    }
+  }
+
+  async function fetchPatientData() {
+    await renderDashboardForSelectedDate();
+  }
+
+  async function fetchRealTimeData() {
+    try {
+      // Reuse the cached dashboard payload so Real-Time + Dashboard share one request.
+      const data = await getDashboardData();
+      const allPatients = normalizePatients(data);
+      const todaysActive = filterTodaysPatients(allPatients).filter(p => {
+        const s = (p.status || p.queue_status || p.state || "").toString().toLowerCase();
+        return s === "waiting" || s === "in-progress" || s === "inprogress" || s === "in progress" || s === '"assigned"';
+      });
+      document.getElementById("realtimeLoading").style.display = "none";
+      document.getElementById("realtimeContent").style.display = "block";
+      calculateRealTimeMetrics(todaysActive, allPatients);
+    } catch(error) {
+      document.getElementById("realtimeLoading").innerHTML = `<div style="color:var(--red);font-size:13px;text-align:center;padding:2rem;"><strong>Failed to load real-time data</strong><br>${error.message}</div>`;
+    }
+  }
+
+  function calculateRealTimeMetrics(activePatients, allPatients) {
+    document.getElementById("rtActiveQueue").innerText = activePatients.length;
+
+    const consultMins = activePatients
+      .map(p => Number(p.estimated_consult_time_mins || p.consult_time || p.duration || 0))
+      .filter(m => m > 0);
+    const avgConsult = consultMins.length > 0
+      ? Math.round(consultMins.reduce((a,b) => a+b, 0) / consultMins.length)
+      : 0;
+    document.getElementById("rtAvgWait").innerText = avgConsult + " min";
+
+    const criticalCount = activePatients.filter(p => {
+      const sev = (p.severity || p.priority || "").toString().toLowerCase();
+      return sev === "critical";
+    }).length;
+    document.getElementById("rtCriticalCount").innerText = criticalCount;
+
+    const statusCounts = { "Waiting": 0, "In-Progress": 0, "Assigned": 0 };
+    activePatients.forEach(p => {
+      const s = (p.status || p.queue_status || p.state || "").toString();
+      if (/in.?progress/i.test(s)) statusCounts["In-Progress"]++;
+      else if (s === '"Assigned"' || s === 'Assigned') statusCounts["Assigned"]++;
+      else statusCounts["Waiting"]++;
+    });
+
+    const ctx = document.getElementById("rtStatusChart").getContext("2d");
+    if (window.rtStatusChartInstance) window.rtStatusChartInstance.destroy();
+    const hasData = Object.values(statusCounts).some(v => v > 0);
+    const labels = hasData ? Object.keys(statusCounts).filter(k => statusCounts[k] > 0) : ["No active patients"];
+    const values = hasData ? Object.values(statusCounts).filter(v => v > 0) : [1];
+    const colors = hasData ? ["#378ADD", "#BA7517", "#1D9E75"] : ["#D3D1C7"];
+    window.rtStatusChartInstance = new Chart(ctx, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: "#FFFFFF", hoverBorderColor: "#FFFFFF" }] },
+      options: { responsive: true, cutout: "65%", plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed} patients` } } } }
+    });
+
+    const totalWaiting = statusCounts["Waiting"] || 0;
+    const totalInProgress = statusCounts["In-Progress"] || 0;
+    const totalAssigned = statusCounts["Assigned"] || 0;
+    const summaryEl = document.getElementById("rtStatusSummary");
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        <div style="display:flex; align-items:center; gap:6px;"><div class="legend-dot" style="background:#378ADD"></div> Waiting: <strong>${totalWaiting}</strong></div>
+        <div style="display:flex; align-items:center; gap:6px;"><div class="legend-dot" style="background:#BA7517"></div> In-Progress: <strong>${totalInProgress}</strong></div>
+        <div style="display:flex; align-items:center; gap:6px;"><div class="legend-dot" style="background:#1D9E75"></div> Assigned: <strong>${totalAssigned}</strong></div>
+      `;
+    }
+  }
+
+  function calculateMetrics(data) {
+    const patients = normalizePatients(data);
 
     document.getElementById("totalVolume").innerText = patients.length || 0;
     const avgConsult = patients.length > 0
@@ -513,7 +780,43 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    // Initialize the dashboard date picker to today and wire up the toolbar buttons.
+    const dashboardDate = document.getElementById("dashboardDate");
+    if (dashboardDate) {
+      dashboardDate.value = toDateInputValue(new Date());
+      dashboardDate.max = dashboardDate.value; // browsing future dates yields no data anyway
+      dashboardDate.addEventListener("change", renderDashboardForSelectedDate);
+    }
+    const btnToday = document.getElementById("btnToday");
+    if (btnToday) {
+      btnToday.addEventListener("click", () => {
+        const todayStr = toDateInputValue(new Date());
+        if (dashboardDate.value !== todayStr) {
+          dashboardDate.value = todayStr;
+          renderDashboardForSelectedDate();
+        }
+      });
+    }
+    const btnPrev = document.getElementById("btnPrevDay");
+    if (btnPrev) {
+      btnPrev.addEventListener("click", () => {
+        dashboardDate.value = shiftDate(dashboardDate.value || toDateInputValue(new Date()), -1);
+        renderDashboardForSelectedDate();
+      });
+    }
+    const btnNext = document.getElementById("btnNextDay");
+    if (btnNext) {
+      btnNext.addEventListener("click", () => {
+        const next = shiftDate(dashboardDate.value || toDateInputValue(new Date()), 1);
+        const todayStr = toDateInputValue(new Date());
+        // Cap at today so we never offer a future date in the past-browser context.
+        dashboardDate.value = next > todayStr ? todayStr : next;
+        renderDashboardForSelectedDate();
+      });
+    }
+
     fetchPatientData();
+    fetchRealTimeData();
     fetchQueueAlerts();
   });
 </script>
